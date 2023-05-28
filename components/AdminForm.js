@@ -21,3 +21,5 @@ export default function AdminForm({
 
 
 //npm install -g npm@9.6.7
+
+//git remote add origin 
