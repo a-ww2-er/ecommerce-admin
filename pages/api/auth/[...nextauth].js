@@ -3,30 +3,23 @@ import GoogleProvider from 'next-auth/providers/google'
 import AppleProvider from 'next-auth/providers/apple'
 import { MongoDBAdapter } from '@next-auth/mongodb-adapter'
 import clientPromise from '@/lib/mongodb'
-// import {User} from '@models/User'
 
 
-const adminEmails = ['joshua.asaya@gmail.com'];
+
+const adminEmails = ['joshua.asaya@gmail.com','joshua.asaya2@gmail'];
+
+
+// MODIFIED LINE OF CODE I ADDED
+
+// let adminEmails = [];
+
+
 
 export const authOptions = {
   secret: process.env.SECRET,
   providers: [
     
     
-    // Providers.Credentials({
-    //   async authorize(credentials) {
-    //     // Add your own logic to validate user credentials
-    //     const user = await User.findOne({ email: credentials.email });
-
-    //     if (user && user.password === credentials.password) {
-    //       // Return the user object if authentication is successful
-    //       return user;
-    //     }
-
-    //     // Return null or throw an error if authentication fails
-    //     return null;
-    //   },
-    // }),
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
       clientSecret: process.env.GOOGLE_SECRET
@@ -37,15 +30,41 @@ export const authOptions = {
           }),
   ],
   adapter: MongoDBAdapter(clientPromise),
+ 
+
+  // callbacks: {
+  //   session: async ({ session, token, user }) => {
+  //     const { email } = user;
+  
+  //     if (adminEmails.includes(email)) {
+  //       session.user.isAdmin = true; // Set the isAdmin property to true
+  //     } else {
+  //       session.user.isAdmin = false; // Set the isAdmin property to false
+  //     }
+  
+  //     return session;
+  //   },
+  // },
+
   callbacks: {
-    session: ({session,token,user}) => {
-      if (adminEmails.includes(session?.user?.email)) {
-        return session;
-      } else {
-        return false;
-      }
+    session: async ({ session, token, user }) => {
+      session.user.isAdmin = adminEmails.includes(user.email);
+      return session;
     },
   },
+  
+  // callbacks: {
+  // session: async ({ session, token, user }) => {
+  //   const db = await clientPromise;
+  //   const admins = await db.collection('admins').find().toArray();
+  //   const adminEmails = admins.map((admin) => admin.email);
+
+  //   session.user.isAdmin = adminEmails.includes(user.email);
+  //   return session;
+  // },
+// },
+
+  
 };
 
 export default NextAuth(authOptions);
