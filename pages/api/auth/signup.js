@@ -1,5 +1,36 @@
-// import {mongooseConnect} from "@/lib/mongoose";
+import {NextApiRequest,NextApiResponse} from "next";
+
+
+import {mongooseConnect} from "@/lib/mongoose";
 // import { User } from "@/models/User";
+
+const handler = async (req,res)=>{
+    mongooseConnect().catch(err => res.json(err))
+    if (req.method === "POST"){
+        console.log("req.body:", req.body)
+        if(!req.body) return res.status(400).json({error:"data is missing"})
+        const { name,
+        email}=req.body
+        if(!name || !email) return res.status(400).json({error:"data is missing"})
+            const userExists = await User.findOne({email})
+            if(userExists){
+                return res.ststus(409).json({error:"User Already Exists"})
+            }else{
+                const newUser = new User({
+                    name,
+                    email})
+                    await newUser.save()
+                    const user={email:data.email,
+                    name:data.name}
+                    res.status(201).json({message:"User Created", user})
+
+
+            }
+    }else{
+        res.status(405).json({error:"method not allowed"})
+    }
+}
+export default handler
 
 // //here we set up the register/signup endpoint
 // async function handler(req, res) {

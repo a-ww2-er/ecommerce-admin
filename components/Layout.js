@@ -2,12 +2,23 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import Nav from "@/components/Nav";
 import { useState, useEffect } from "react";
 import Logo from "@/components/Logo";
+import {getServerSession} from "next-auth";
 import { useRouter } from "next/router";
+import { redirect } from "next/dist/server/api-utils";
 
 export default function Layout({ children }) {
   const [showNav, setShowNav] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
+
+  const handleSignIn = (provider) => {
+    signIn(provider, { redirect: false })
+      .then(() => router.replace("/"))
+      .catch((err) => {
+        console.log(err);
+        router.replace("/unauthorized");
+      });
+  };
 
   useEffect(() => {
     if (status === "authenticated" && !session?.user?.isAdmin) {
@@ -24,7 +35,7 @@ export default function Layout({ children }) {
           </h1>
           <div>
             <button
-              onClick={() => signIn("google")}
+              onClick={() => handleSignIn("google")}
               className="bg-gray-400 text-white p-2 px-4 rounded-lg m-3"
             >
               Login with Google
@@ -73,9 +84,7 @@ export default function Layout({ children }) {
       </div>
       <div className="flex">
         <Nav show={showNav} />
-        <div className="flex-grow p-4">
-          {children}
-        </div>
+        <div className="flex-grow p-4">{children}</div>
       </div>
     </div>
   );

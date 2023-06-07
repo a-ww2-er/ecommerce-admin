@@ -59,7 +59,7 @@ export default function AdminPage() {
       const response = await fetch(`/api/admin/${email}`, {
         method: 'DELETE',
       });
-
+      console.log(response)
       if (response.ok) {
         alert('Admin email deleted successfully!');
         fetchAdminEmails(); // Refresh the admin emails list
